@@ -12,7 +12,8 @@ export interface AsyncImageTaskResponse {
 
 /**
  * RightAPI submits images below /draw, but exposes task queries at site level.
- * Keep the local Next.js proxy prefix intact when the request is proxied.
+ * Browser requests must use our same-origin proxy because RightAPI's task
+ * response does not include CORS headers.
  */
 export function getAsyncImageTaskUrl(
   imageGenerationUrl: string,
@@ -30,8 +31,11 @@ export function getAsyncImageTaskUrl(
     `/v1/tasks/${encodedTaskId}`,
   );
 
-  // RightAPI's task endpoint is site-level and deliberately omits /draw.
-  return taskUrl.replace(/\/draw\/v1\/tasks\//, "/v1/tasks/");
+  if (/^https?:\/\/(?:www\.)?rightapi\.ai\/draw\/v1\/tasks\//i.test(taskUrl)) {
+    return `/api/proxy/rightapi/tasks/${encodedTaskId}`;
+  }
+
+  return taskUrl;
 }
 
 export function isPendingAsyncImageTask(status?: string): boolean {

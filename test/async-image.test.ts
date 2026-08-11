@@ -7,13 +7,22 @@ import {
 import { isImageGenerationModel } from "../app/utils";
 
 describe("RightAPI asynchronous image helpers", () => {
-  test("builds the site-level RightAPI task URL", () => {
+  test("routes RightAPI task polling through the same-origin proxy", () => {
     expect(
       getAsyncImageTaskUrl(
         "https://www.rightapi.ai/draw/v1/images/generations",
         "task_123",
       ),
-    ).toBe("https://www.rightapi.ai/v1/tasks/task_123");
+    ).toBe("/api/proxy/rightapi/tasks/task_123");
+  });
+
+  test("encodes RightAPI task IDs in the proxy URL", () => {
+    expect(
+      getAsyncImageTaskUrl(
+        "https://rightapi.ai/draw/v1/images/generations",
+        "task/with spaces",
+      ),
+    ).toBe("/api/proxy/rightapi/tasks/task%2Fwith%20spaces");
   });
 
   test("keeps the local OpenAI proxy prefix", () => {

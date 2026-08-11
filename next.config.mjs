@@ -85,6 +85,12 @@ if (mode !== "export") {
         destination: "https://api.openai.com/:path*",
       },
       {
+        // RightAPI's task endpoint omits CORS headers, so browsers poll it
+        // through this same-origin route instead of contacting it directly.
+        source: "/api/proxy/rightapi/tasks/:task_id",
+        destination: "https://www.rightapi.ai/v1/tasks/:task_id",
+      },
+      {
         source: "/api/proxy/anthropic/:path*",
         destination: "https://api.anthropic.com/:path*",
       },
