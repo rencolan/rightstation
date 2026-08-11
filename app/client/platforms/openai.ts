@@ -49,6 +49,7 @@ import {
   ASYNC_IMAGE_POLL_INTERVAL_MS,
   ASYNC_IMAGE_TIMEOUT_MS,
   AsyncImageTaskResponse,
+  formatGeneratedImageMessage,
   getAsyncImageTaskError,
   getAsyncImageTaskUrl,
   getRightApiBaseUrl,
@@ -146,14 +147,10 @@ export class ChatGPTApi implements LLMApi {
         // uploadImage
         url = await uploadImage(base64Image2Blob(b64_json, "image/png"));
       }
-      return [
-        {
-          type: "image_url",
-          image_url: {
-            url,
-          },
-        },
-      ];
+      // Chat messages are rendered as Markdown text. Returning only an
+      // image_url multimodal part makes assistant images invisible because
+      // getMessageTextContent intentionally ignores non-text parts.
+      return formatGeneratedImageMessage(url);
     }
     return res.choices?.at(0)?.message?.content ?? res;
   }

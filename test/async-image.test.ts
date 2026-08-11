@@ -1,4 +1,5 @@
 import {
+  formatGeneratedImageMessage,
   getAsyncImageTaskError,
   getAsyncImageTaskUrl,
   getRightApiBaseUrl,
@@ -38,6 +39,14 @@ describe("RightAPI asynchronous image helpers", () => {
     expect(
       getAsyncImageTaskError({ error: { message: "upstream failed" } }),
     ).toBe("upstream failed");
+  });
+
+  test("formats completed images for the chat Markdown renderer", () => {
+    expect(formatGeneratedImageMessage("https://cdn.example.com/image.png"))
+      .toBe("![Generated image](https://cdn.example.com/image.png)");
+    expect(() => formatGeneratedImageMessage("")).toThrow(
+      "Image generation completed without an image",
+    );
   });
 
   test("recognizes RightAPI image model families", () => {

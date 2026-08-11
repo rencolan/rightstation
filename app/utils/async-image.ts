@@ -46,6 +46,14 @@ export function getAsyncImageTaskError(task: AsyncImageTaskResponse): string {
   return task.error?.message || "Image generation task failed";
 }
 
+export function formatGeneratedImageMessage(url: string): string {
+  if (!url) {
+    throw new Error("Image generation completed without an image");
+  }
+
+  return `![Generated image](${url})`;
+}
+
 /** Route RightAPI's OpenAI-compatible requests to the correct product prefix. */
 export function getRightApiBaseUrl(baseUrl: string, apiPath: string): string {
   if (
