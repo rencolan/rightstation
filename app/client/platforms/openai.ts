@@ -290,6 +290,10 @@ export class ChatGPTApi implements LLMApi {
         ...(isAsyncImageGeneration
           ? {
               async: true as const,
+              // RightAPI's default CDN URLs may be unreachable from some
+              // networks. Ask the completed task for inline image data so it
+              // can be stored by the app's local service-worker cache.
+              response_format: "b64_json" as const,
               ...(referenceImages.length > 0 && { image: referenceImages }),
             }
           : {
