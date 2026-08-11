@@ -21,4 +21,4 @@ CUSTOM_MODELS=nano-banana-fast
 
 生图请求固定携带 `async: true`。前端取得 `task_id` 后，每 2 秒查询一次 `/v1/tasks/{task_id}`；任务最长等待 10 分钟，可随时用停止按钮取消。
 
-目前自动识别 `dall-e`、`gpt-image` 和 `nano-banana` 系列为图片模型。`nano-banana` 与 `gpt-image` 系列可在输入栏选择 `1:1`、`16:9`、`9:16` 或 `4:3` 比例，并支持上传参考图。
+目前自动识别 `dall-e`、`gpt-image` 和 `nano-banana` 系列为图片模型。`gpt-image-2`、`nano-banana` 与其他 `gpt-image` 系列可在输入栏选择 `1:1`、`16:9`、`9:16` 或 `4:3` 比例，并支持上传参考图。

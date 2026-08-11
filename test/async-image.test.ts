@@ -33,6 +33,7 @@ describe("RightAPI asynchronous image helpers", () => {
   test("recognizes RightAPI image model families", () => {
     expect(isImageGenerationModel("nano-banana-fast")).toBe(true);
     expect(isImageGenerationModel("gpt-image-1.5-vip")).toBe(true);
+    expect(isImageGenerationModel("gpt-image-2")).toBe(true);
     expect(isImageGenerationModel("gpt-4o")).toBe(false);
   });
 });
