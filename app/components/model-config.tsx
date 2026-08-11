@@ -5,50 +5,79 @@ import Locale from "../locales";
 import { InputRange } from "./input-range";
 import { ListItem, Select } from "./ui-lib";
 import { useAllModels } from "../utils/hooks";
-import { groupBy } from "lodash-es";
 import styles from "./model-config.module.scss";
 import { getModelProvider } from "../utils/model";
+import { isRightApiModel } from "../utils/rightapi-models";
+
+export function ModelSelector(props: {
+  modelConfig: ModelConfig;
+  updateConfig: (updater: (config: ModelConfig) => void) => void;
+  className?: string;
+}) {
+  const allModels = useAllModels().filter((model) => model.available);
+  const groups = [
+    {
+      label: "RightAPI 可用模型",
+      models: allModels.filter(isRightApiModel),
+    },
+    {
+      label: "其他接口模型",
+      models: allModels.filter((model) => !isRightApiModel(model)),
+    },
+  ].filter((group) => group.models.length > 0);
+  const value = `${props.modelConfig.model}@${props.modelConfig?.providerName}`;
+
+  return (
+    <ListItem
+      className={props.className}
+      title={Locale.Settings.Model}
+      subTitle="文字默认 gpt-5.5；生图请选择 gpt-image-2"
+    >
+      <Select
+        aria-label={Locale.Settings.Model}
+        value={value}
+        align="left"
+        onChange={(e) => {
+          const [model, providerName] = getModelProvider(e.currentTarget.value);
+          props.updateConfig((config) => {
+            config.model = ModalConfigValidator.model(model);
+            config.providerName = providerName as ServiceProvider;
+          });
+        }}
+      >
+        {groups.map((group) => (
+          <optgroup label={group.label} key={group.label}>
+            {group.models.map((model) => (
+              <option
+                value={`${model.name}@${model.provider?.providerName}`}
+                key={`${model.name}@${model.provider?.id}`}
+              >
+                {model.displayName}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </Select>
+    </ListItem>
+  );
+}
 
 export function ModelConfigList(props: {
   modelConfig: ModelConfig;
   updateConfig: (updater: (config: ModelConfig) => void) => void;
+  hideModelSelector?: boolean;
 }) {
   const allModels = useAllModels();
-  const groupModels = groupBy(
-    allModels.filter((v) => v.available),
-    "provider.providerName",
-  );
-  const value = `${props.modelConfig.model}@${props.modelConfig?.providerName}`;
   const compressModelValue = `${props.modelConfig.compressModel}@${props.modelConfig?.compressProviderName}`;
 
   return (
     <>
-      <ListItem title={Locale.Settings.Model}>
-        <Select
-          aria-label={Locale.Settings.Model}
-          value={value}
-          align="left"
-          onChange={(e) => {
-            const [model, providerName] = getModelProvider(
-              e.currentTarget.value,
-            );
-            props.updateConfig((config) => {
-              config.model = ModalConfigValidator.model(model);
-              config.providerName = providerName as ServiceProvider;
-            });
-          }}
-        >
-          {Object.keys(groupModels).map((providerName, index) => (
-            <optgroup label={providerName} key={index}>
-              {groupModels[providerName].map((v, i) => (
-                <option value={`${v.name}@${v.provider?.providerName}`} key={i}>
-                  {v.displayName}
-                </option>
-              ))}
-            </optgroup>
-          ))}
-        </Select>
-      </ListItem>
+      {!props.hideModelSelector && (
+        <ModelSelector
+          modelConfig={props.modelConfig}
+          updateConfig={props.updateConfig}
+        />
+      )}
       <ListItem
         title={Locale.Settings.Temperature.Title}
         subTitle={Locale.Settings.Temperature.SubTitle}

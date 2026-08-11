@@ -31,7 +31,7 @@ import {
   showConfirm,
   showToast,
 } from "./ui-lib";
-import { ModelConfigList } from "./model-config";
+import { ModelConfigList, ModelSelector } from "./model-config";
 
 import { IconButton } from "./button";
 import {
@@ -722,6 +722,7 @@ export function Settings() {
   const useCustomConfigComponent = // Conditionally render the following ListItem based on clientConfig.isApp
     !clientConfig?.isApp && ( // only show if isApp is false
       <ListItem
+        className={styles["quick-row"]}
         title={Locale.Settings.Access.CustomEndpoint.Title}
         subTitle={Locale.Settings.Access.CustomEndpoint.SubTitle}
       >
@@ -742,14 +743,15 @@ export function Settings() {
     ServiceProvider.OpenAI && (
     <>
       <ListItem
+        className={styles["quick-row"]}
         title={Locale.Settings.Access.OpenAI.Endpoint.Title}
-        subTitle={Locale.Settings.Access.OpenAI.Endpoint.SubTitle}
+        subTitle="默认使用 RightAPI 文本接口；生图会自动切换到 /draw"
       >
         <input
           aria-label={Locale.Settings.Access.OpenAI.Endpoint.Title}
           type="text"
           value={accessStore.openaiUrl}
-          placeholder={OPENAI_BASE_URL}
+          placeholder="https://www.rightapi.ai/codex"
           onChange={(e) =>
             accessStore.update(
               (access) => (access.openaiUrl = e.currentTarget.value),
@@ -758,8 +760,9 @@ export function Settings() {
         ></input>
       </ListItem>
       <ListItem
+        className={styles["quick-row"]}
         title={Locale.Settings.Access.OpenAI.ApiKey.Title}
-        subTitle={Locale.Settings.Access.OpenAI.ApiKey.SubTitle}
+        subTitle="密钥只保存在当前浏览器中"
       >
         <PasswordInput
           aria={Locale.Settings.ShowPassword}
@@ -1524,6 +1527,41 @@ export function Settings() {
         </div>
       </div>
       <div className={styles["settings"]}>
+        <section className={styles["quick-setup"]}>
+          <div className={styles["quick-setup-header"]}>
+            <div>
+              <h2>快速连接</h2>
+              <p>填入 API Key 即可开始。文字与生图会自动分流。</p>
+            </div>
+            <span>推荐</span>
+          </div>
+          <List>
+            {useCustomConfigComponent}
+            {openAIConfigComponent}
+            <ModelSelector
+              className={styles["quick-row"]}
+              modelConfig={config.modelConfig}
+              updateConfig={(updater) => {
+                const modelConfig = { ...config.modelConfig };
+                updater(modelConfig);
+                config.update((config) => (config.modelConfig = modelConfig));
+              }}
+            />
+            <ListItem
+              className={styles["quick-row"]}
+              title="默认生图模型"
+              subTitle="在聊天输入栏切换到此模型即可生成图片"
+            >
+              <strong>gpt-image-2</strong>
+            </ListItem>
+          </List>
+        </section>
+
+        <details className={styles["advanced-settings"]}>
+          <summary>
+            <span>更多设置</span>
+            <small>外观、高级模型参数、同步与其他接口</small>
+          </summary>
         <List>
           <ListItem title={Locale.Settings.Avatar}>
             <Popover
@@ -1821,8 +1859,6 @@ export function Settings() {
 
           {!accessStore.hideUserApiKey && (
             <>
-              {useCustomConfigComponent}
-
               {accessStore.useCustomConfig && (
                 <>
                   <ListItem
@@ -1848,7 +1884,6 @@ export function Settings() {
                     </Select>
                   </ListItem>
 
-                  {openAIConfigComponent}
                   {azureConfigComponent}
                   {googleConfigComponent}
                   {anthropicConfigComponent}
@@ -1918,6 +1953,7 @@ export function Settings() {
         <List>
           <ModelConfigList
             modelConfig={config.modelConfig}
+            hideModelSelector
             updateConfig={(updater) => {
               const modelConfig = { ...config.modelConfig };
               updater(modelConfig);
@@ -1953,6 +1989,7 @@ export function Settings() {
         </List>
 
         <DangerItems />
+        </details>
       </div>
     </ErrorBoundary>
   );

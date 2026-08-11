@@ -227,8 +227,13 @@ export function useLoadData() {
 
   useEffect(() => {
     (async () => {
-      const models = await api.llm.models();
-      config.mergeModels(models);
+      const [providerModels, rightApiModels] = await Promise.all([
+        api.llm.models().catch(() => []),
+        fetch("/api/rightapi-models")
+          .then((response) => (response.ok ? response.json() : []))
+          .catch(() => []),
+      ]);
+      config.mergeModels([...providerModels, ...rightApiModels]);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -16,6 +16,7 @@ import {
 } from "../constant";
 import { createPersistStore } from "../utils/store";
 import type { Voice } from "rt-client";
+import { RIGHTAPI_CUSTOM_MODELS } from "../utils/rightapi-models";
 
 export type ModelType = (typeof DEFAULT_MODELS)[number]["name"];
 export type TTSModelType = (typeof DEFAULT_TTS_MODELS)[number];
@@ -47,24 +48,24 @@ export const DEFAULT_CONFIG = {
   fontFamily: "",
   theme: Theme.Auto as Theme,
   tightBorder: !!config?.isApp,
-  sendPreviewBubble: true,
+  sendPreviewBubble: false,
   enableAutoGenerateTitle: true,
   sidebarWidth: DEFAULT_SIDEBAR_WIDTH,
 
-  enableArtifacts: true, // show artifacts config
+  enableArtifacts: false, // keep the default interface focused on chat
 
   enableCodeFold: true, // code fold config
 
-  disablePromptHint: false,
+  disablePromptHint: true,
 
-  dontShowMaskSplashScreen: false, // dont show splash screen when create chat
-  hideBuiltinMasks: false, // dont add builtin masks
+  dontShowMaskSplashScreen: true, // start new chats directly
+  hideBuiltinMasks: true, // keep the default interface focused on chat
 
-  customModels: "",
+  customModels: RIGHTAPI_CUSTOM_MODELS,
   models: DEFAULT_MODELS as any as LLMModel[],
 
   modelConfig: {
-    model: "gpt-4o-mini" as ModelType,
+    model: "gpt-5.5" as ModelType,
     providerName: "OpenAI" as ServiceProvider,
     temperature: 0.5,
     top_p: 1,
@@ -195,7 +196,7 @@ export const useAppConfig = createPersistStore(
   }),
   {
     name: StoreKey.Config,
-    version: 4.1,
+    version: 4.2,
 
     merge(persistedState, currentState) {
       const state = persistedState as ChatConfig | undefined;
@@ -253,6 +254,21 @@ export const useAppConfig = createPersistStore(
           DEFAULT_CONFIG.modelConfig.compressModel;
         state.modelConfig.compressProviderName =
           DEFAULT_CONFIG.modelConfig.compressProviderName;
+      }
+
+
+      if (version < 4.2) {
+        state.customModels = [state.customModels, RIGHTAPI_CUSTOM_MODELS]
+          .filter(Boolean)
+          .join(",");
+        state.modelConfig.model = "gpt-5.5" as ModelType;
+        state.modelConfig.providerName = ServiceProvider.OpenAI;
+        state.modelConfig.size = "1024x1024" as ModelSize;
+        state.sendPreviewBubble = false;
+        state.enableArtifacts = false;
+        state.disablePromptHint = true;
+        state.dontShowMaskSplashScreen = true;
+        state.hideBuiltinMasks = true;
       }
 
       return state as any;
