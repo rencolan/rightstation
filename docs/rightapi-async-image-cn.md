@@ -19,6 +19,6 @@ OPENAI_API_KEY=sk-xxxxx
 CUSTOM_MODELS=nano-banana-fast
 ```
 
-生图请求固定携带 `async: true` 和 `response_format: "b64_json"`。前端取得 `task_id` 后，每 2 秒通过同源地址 `/api/proxy/rightapi/tasks/{task_id}` 查询任务，Netlify 再转发到 RightAPI 的 `/v1/tasks/{task_id}`。这样可以绕过任务接口缺少 CORS 响应头的问题；完成后的 base64 图片会保存到浏览器的本地缓存，不再依赖可能无法访问的第三方 CDN。任务最长等待 10 分钟，可随时用停止按钮取消。
+生图请求固定携带 `async: true` 和 `response_format: "b64_json"`。前端取得 `task_id` 后，每 2 秒通过同源地址 `/api/proxy/rightapi/tasks/{task_id}` 查询任务，Netlify 再转发到 RightAPI 的 `/v1/tasks/{task_id}`。这样可以绕过任务接口缺少 CORS 响应头的问题。完成后的 base64 图片会保存到浏览器本地缓存；如果 RightAPI 仍返回其 `file数字.aitohumanize.com` CDN 地址，页面会自动改用受严格域名白名单保护的 `/api/rightapi-image` 同源代理。任务最长等待 10 分钟，可随时用停止按钮取消。
 
 目前自动识别 `dall-e`、`gpt-image` 和 `nano-banana` 系列为图片模型。`gpt-image-2`、`nano-banana` 与其他 `gpt-image` 系列可在输入栏选择 `1:1`、`16:9`、`9:16` 或 `4:3` 比例，并支持上传参考图。

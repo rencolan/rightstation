@@ -51,7 +51,28 @@ export function formatGeneratedImageMessage(url: string): string {
     throw new Error("Image generation completed without an image");
   }
 
-  return `![Generated image](${url})`;
+  return `![Generated image](${getGeneratedImageUrl(url)})`;
+}
+
+/**
+ * RightAPI may ignore response_format and return an image on a CDN that is
+ * unreachable from the browser. Only that known CDN family is sent through
+ * our same-origin image proxy; all other providers keep their original URL.
+ */
+export function getGeneratedImageUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (
+      parsed.protocol === "https:" &&
+      /^file\d+\.aitohumanize\.com$/i.test(parsed.hostname)
+    ) {
+      return `/api/rightapi-image?url=${encodeURIComponent(parsed.href)}`;
+    }
+  } catch {
+    // Preserve non-URL values so existing providers keep their behavior.
+  }
+
+  return url;
 }
 
 /** Route RightAPI's OpenAI-compatible requests to the correct product prefix. */

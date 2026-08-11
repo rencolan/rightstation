@@ -2,6 +2,7 @@ import {
   formatGeneratedImageMessage,
   getAsyncImageTaskError,
   getAsyncImageTaskUrl,
+  getGeneratedImageUrl,
   getRightApiBaseUrl,
   isPendingAsyncImageTask,
 } from "../app/utils/async-image";
@@ -47,6 +48,20 @@ describe("RightAPI asynchronous image helpers", () => {
     expect(() => formatGeneratedImageMessage("")).toThrow(
       "Image generation completed without an image",
     );
+  });
+
+  test("proxies only RightAPI's generated-image CDN", () => {
+    const rightApiImage =
+      "https://file8.aitohumanize.com/file/generated-image.png";
+    expect(getGeneratedImageUrl(rightApiImage)).toBe(
+      `/api/rightapi-image?url=${encodeURIComponent(rightApiImage)}`,
+    );
+    expect(getGeneratedImageUrl("https://cdn.example.com/image.png")).toBe(
+      "https://cdn.example.com/image.png",
+    );
+    expect(
+      getGeneratedImageUrl("https://file8.aitohumanize.com.evil.test/x.png"),
+    ).toBe("https://file8.aitohumanize.com.evil.test/x.png");
   });
 
   test("recognizes RightAPI image model families", () => {
