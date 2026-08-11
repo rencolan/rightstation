@@ -1,0 +1,43 @@
+export const ASYNC_IMAGE_POLL_INTERVAL_MS = 2000;
+export const ASYNC_IMAGE_TIMEOUT_MS = 10 * 60 * 1000;
+
+export interface AsyncImageTaskResponse {
+  task_id?: string;
+  status?: "queued" | "processing" | "in_progress" | "completed" | "failed";
+  progress?: number;
+  data?: Array<{ url?: string; b64_json?: string }>;
+  error?: { message?: string; code?: string };
+  [key: string]: unknown;
+}
+
+/**
+ * RightAPI submits images below /draw, but exposes task queries at site level.
+ * Keep the local Next.js proxy prefix intact when the request is proxied.
+ */
+export function getAsyncImageTaskUrl(
+  imageGenerationUrl: string,
+  taskId: string,
+): string {
+  const encodedTaskId = encodeURIComponent(taskId);
+  const generationPath = /\/v1\/images\/generations\/?(?:\?.*)?$/;
+
+  if (!generationPath.test(imageGenerationUrl)) {
+    throw new Error("Invalid image generation URL");
+  }
+
+  const taskUrl = imageGenerationUrl.replace(
+    generationPath,
+    `/v1/tasks/${encodedTaskId}`,
+  );
+
+  // RightAPI's task endpoint is site-level and deliberately omits /draw.
+  return taskUrl.replace(/\/draw\/v1\/tasks\//, "/v1/tasks/");
+}
+
+export function isPendingAsyncImageTask(status?: string): boolean {
+  return ["queued", "processing", "in_progress"].includes(status ?? "");
+}
+
+export function getAsyncImageTaskError(task: AsyncImageTaskResponse): string {
+  return task.error?.message || "Image generation task failed";
+}
