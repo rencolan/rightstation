@@ -41,3 +41,22 @@ export function isPendingAsyncImageTask(status?: string): boolean {
 export function getAsyncImageTaskError(task: AsyncImageTaskResponse): string {
   return task.error?.message || "Image generation task failed";
 }
+
+/** Route RightAPI's OpenAI-compatible requests to the correct product prefix. */
+export function getRightApiBaseUrl(baseUrl: string, apiPath: string): string {
+  if (
+    !/^https?:\/\/(?:www\.)?rightapi\.ai\/(?:codex|draw)\/?$/i.test(baseUrl)
+  ) {
+    return baseUrl;
+  }
+
+  if (apiPath === "v1/images/generations") {
+    return baseUrl.replace(/\/codex\/?$/i, "/draw");
+  }
+
+  if (apiPath === "v1/chat/completions") {
+    return baseUrl.replace(/\/draw\/?$/i, "/codex");
+  }
+
+  return baseUrl;
+}

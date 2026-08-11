@@ -51,6 +51,7 @@ import {
   AsyncImageTaskResponse,
   getAsyncImageTaskError,
   getAsyncImageTaskUrl,
+  getRightApiBaseUrl,
   isPendingAsyncImageTask,
 } from "@/app/utils/async-image";
 
@@ -118,6 +119,7 @@ export class ChatGPTApi implements LLMApi {
     if (baseUrl.endsWith("/")) {
       baseUrl = baseUrl.slice(0, baseUrl.length - 1);
     }
+    baseUrl = getRightApiBaseUrl(baseUrl, path);
     if (
       !baseUrl.startsWith("http") &&
       !isAzure &&

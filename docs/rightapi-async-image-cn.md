@@ -5,7 +5,7 @@
 ## 客户端自定义配置
 
 1. 在设置中启用“自定义接口”。
-2. OpenAI 接口地址填写 `https://www.rightapi.ai/draw`。
+2. OpenAI 接口地址填写 `https://www.rightapi.ai/codex`。选择图片模型时，项目会自动切换到 `/draw` 生图接口。
 3. 填写 RightAPI API Key。
 4. 在自定义模型中添加图片模型，例如 `nano-banana-fast`。
 

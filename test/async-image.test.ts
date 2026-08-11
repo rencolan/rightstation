@@ -1,6 +1,7 @@
 import {
   getAsyncImageTaskError,
   getAsyncImageTaskUrl,
+  getRightApiBaseUrl,
   isPendingAsyncImageTask,
 } from "../app/utils/async-image";
 import { isImageGenerationModel } from "../app/utils";
@@ -35,5 +36,17 @@ describe("RightAPI asynchronous image helpers", () => {
     expect(isImageGenerationModel("gpt-image-1.5-vip")).toBe(true);
     expect(isImageGenerationModel("gpt-image-2")).toBe(true);
     expect(isImageGenerationModel("gpt-4o")).toBe(false);
+  });
+
+  test("routes RightAPI text and image requests to their product prefixes", () => {
+    expect(
+      getRightApiBaseUrl(
+        "https://www.rightapi.ai/codex",
+        "v1/images/generations",
+      ),
+    ).toBe("https://www.rightapi.ai/draw");
+    expect(
+      getRightApiBaseUrl("https://www.rightapi.ai/draw", "v1/chat/completions"),
+    ).toBe("https://www.rightapi.ai/codex");
   });
 });
